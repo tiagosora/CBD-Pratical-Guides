@@ -1,0 +1,20 @@
+set foo 1
+get foo
+incr foo
+get foo
+incrby foo 2
+get foo
+keys *
+type foo
+set hello hello
+keys *
+del hello
+scan 0
+exists hello
+mset a 10 b 15 c 20
+mget a b c
+keys *
+type d
+rpush newlist 1 2 3 4 5
+lrange newlist 0 -1
+lrange newlist 0 2

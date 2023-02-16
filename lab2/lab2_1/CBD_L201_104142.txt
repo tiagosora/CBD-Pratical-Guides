@@ -1,0 +1,94 @@
+Using 3 diferent terminals at the same directory :
+
+| Terminal 1 ~/Desktop/CBD | $ mongod --dbpath .										(Server)
+| Terminal 2 ~/Desktop/CBD | $ mongoimport --db cbd --collection restaurants --drop --file ~/Downloads/restaurants.json		(Imports)
+| Terminal 3 ~/Desktop/CBD | $ mongosh												(Client)
+
+
+Using the terminal 3, I executed the following simple scripts to understant the basics of MongoDB
+
+> use cbd
+switched to db cbd
+
+cbd> show dbs
+admin    40.00 KiB
+cbd     912.00 KiB
+config   48.00 KiB
+local    40.00 KiB
+
+cbd> show collections
+restaurants
+
+> db.restaurants.find()
+[
+  {
+    _id: ObjectId("63616244cbd5a6d178f98c7b"),
+    address: {
+      building: '6409',
+      coord: [ -74.00528899999999, 40.628886 ],
+      rua: '11 Avenue',
+      zipcode: '11219'
+    },
+    localidade: 'Brooklyn',
+    gastronomia: 'American',
+    grades: [
+      {
+        date: ISODate("2014-07-18T00:00:00.000Z"),
+        grade: 'A',
+        score: 12
+      },
+      {
+        date: ISODate("2013-07-30T00:00:00.000Z"),
+        grade: 'A',
+        score: 12
+      },
+      {
+        date: ISODate("2013-02-13T00:00:00.000Z"),
+        grade: 'A',
+        score: 11
+      },
+      {
+        date: ISODate("2012-08-16T00:00:00.000Z"),
+        grade: 'A',
+        score: 2
+      },
+      {
+        date: ISODate("2011-08-17T00:00:00.000Z"),
+        grade: 'A',
+        score: 11
+      }
+    ],
+
+> cbd> db.restaurants.findOne({"gastronomia" : "Asian"})
+{
+  _id: ObjectId("63616244cbd5a6d178f98eed"),
+  address: {
+    building: '51',
+    coord: [ -73.9787406, 40.7611474 ],
+    rua: 'West 52 Street',
+    zipcode: '10019'
+  },
+  localidade: 'Manhattan',
+  gastronomia: 'Asian',
+  grades: [
+    {
+      date: ISODate("2014-08-12T00:00:00.000Z"),
+      grade: 'A',
+      score: 11
+    },
+    { date: ISODate("2013-08-27T00:00:00.000Z"), grade: 'A', score: 9 },
+    {
+      date: ISODate("2013-04-03T00:00:00.000Z"),
+      grade: 'B',
+      score: 18
+    },
+    {
+      date: ISODate("2012-09-20T00:00:00.000Z"),
+      grade: 'A',
+      score: 12
+    },
+    { date: ISODate("2011-08-17T00:00:00.000Z"), grade: 'A', score: 2 }
+  ],
+  nome: 'China Grill',
+  restaurant_id: '40386481'
+}

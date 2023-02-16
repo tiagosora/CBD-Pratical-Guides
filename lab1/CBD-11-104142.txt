@@ -1,0 +1,27 @@
+help
+help @list
+PING
+DBSIZE
+SET testkey hello
+EXISTS testkey
+TYPE testkey
+KEYS *
+del testekey
+DEL testekey
+del testkey
+get testkey
+EXISTS testkey
+TYPE testkey
+scan 0
+monitor
+scan 0 match "hell*"
+scan 1
+scan 0
+scan cursor 0
+SET testkey hello
+scan 0
+scan 0 match "hell*"
+SET Book:1 "Infinite Jest"
+GET Book:1
+SET Book:1:ReadAction 1
+GET Book:1:ReadAction

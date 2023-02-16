@@ -1,0 +1,7 @@
+------------------------------------- MENU -----------------------------------------
+msg add [username] -> Add a user to the database
+msg associate [userA] [userB] -> userA associates with userB, receiving his messages
+msg storeMsg [userA] [message] -> userA sends a message
+msg readMsg [userA] -> Lists 'userA' message history
+msg showUsers -> Lists all on the database
+msg exit -> Close the program

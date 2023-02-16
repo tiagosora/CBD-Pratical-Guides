@@ -1,0 +1,452 @@
+Para esta alínea, usei um dataset que encontrei disponível online, https://github.com/bakks/mongo-in-action-code/blob/master/chapter9/catalog.books.json, que contém informação relativa a livros (título, isbn, número de páginas, data de publicação, descrição, etc...).
+
+O dataset encontra-se em formato .json no directorio "Lab2_104142/lab2_5/lab2_5/src/main/resources".
+
+{
+	"_id" : 4,
+	"title" : "Flex 3 in Action",
+	"isbn" : "1933988746",
+	"pageCount" : 576,
+	"publishedDate" : { "$date" : "2009-02-02T00:00:00.000-0800" },
+	"thumbnailUrl" : "https://s3.amazonaws.com/AKIAJC5RLADLUMVRPFDQ.book-thumb-images/ahmed.jpg",
+	"longDescription" : "New web applications require engaging user-friendly interfaces and the cooler, the better. With Flex 3, web developers at any skill level can create high-quality, effective, and interactive Rich Internet Applications (RIAs) quickly and easily. Flex removes the complexity barrier from RIA development by offering sophisticated tools and a straightforward programming language so you can focus on what you want to do instead of how to do it. And now that the major components of Flex are free and open-source, the cost barrier is gone, as well! Flex 3 in Action is an easy-to-follow, hands-on Flex tutorial. Chock-full of examples, this book goes beyond feature coverage and helps you put Flex to work in real day-to-day tasks. You'll quickly master the Flex API and learn to apply the techniques that make your Flex applications stand out from the crowd. Interesting themes, styles, and skins It's in there. Working with databases You got it. Interactive forms and validation You bet. Charting techniques to help you visualize data Bam! The expert authors of Flex 3 in Action have one goal to help you get down to business with Flex 3. Fast. Many Flex books are overwhelming to new users focusing on the complexities of the language and the super-specialized subjects in the Flex eco-system; Flex 3 in Action filters out the noise and dives into the core topics you need every day. Using numerous easy-to-understand examples, Flex 3 in Action gives you a strong foundation that you can build on as the complexity of your projects increases.", 
+	"status" : "PUBLISH",
+	"authors" : [ "Tariq Ahmed with Jon Hirschi", "Faisal Abid" ],
+	"categories" : [ "Internet" ]
+}
+
+
+
+C) Crie 6 queries expressivas do seu domínio de conhecimento utilizando o operador find({...}, {...}).
+
+
+1. Listar o título, número de páginas, data de publicação e autores de todos os livros que contanham 'Software Engineering' nas categorias.
+Iterable<Document> documents = collection   	.find(in("categories", "Software Engineering"))
+                                                .projection(Projections.fields( Projections.exclude("_id"),
+                                                                                Projections.include("title"),
+                                                                                Projections.include("pageCount"),
+                                                                                Projections.include("publishedDate"),
+                                                                                Projections.include("authors")));
+
+atributo find(): método de pesquisa.
+atributo in() : usado para verificar se "Software Engineering" faz parte da lista de categorias de cada livro.
+atributo projection() : usado para restringir os tipo de dados dos guardados após a pesquisa.
+atributo Projections.fields() : usado para definir a lista de parâmetros que queremos guardar dos livros encontrados previamente.
+atributo Projections.exclude() : usado para excluir o parâmetros "_id" da lista de parâmetros, já que este é automaticamente adicionado.
+atributo Projections.include() : usado para adicionar um parâmetro à lista de parâmetros.
+
+
+2. Listar o título, autores e data de publicação dos 10 primeiros livros, por ordem crescente de data de publicação.
+Iterable<Document> documents = collection   	.find()
+		                                .projection(Projections.fields( Projections.exclude("_id"),
+		                                                                Projections.include("title"),
+		                                                                Projections.include("authors"),
+		                                                                Projections.include("publishedDate")))
+		                                .sort(Sorts.ascending("publishedDate"))
+		                                .limit(10);
+
+atributo find(): método de pesquisa.
+atributo projection() : usado para restringir os tipo de dados dos guardados após a pesquisa.
+atributo Projections.fields() : usado para definir a lista de parâmetros que queremos guardar dos livros encontrados previamente.
+atributo Projections.exclude() : usado para excluir o parâmetros "_id" da lista de parâmetros, já que este é automaticamente adicionado.
+atributo Projections.include() : usado para adicionar um parâmetro à lista de parâmetros.
+atributo sort(): usado para ordenar a lista de documentos/livros encontrados fase a um ou mais parâmetros guardados. 
+atributo Sorts.ascending() : usado para definir a ordem como crescente de data de publicação.
+atributo limit() : usado para limitar o número de livros que queremos obter da pesquisa para 10. (Usa-se no final para serem os 10 **primeiros** livros da lista já ordenada).
+
+
+3. Listar o título, autores e data de publicação dos 3 primeiros livros cujo título começa por "T", por ordem decrescente de título.
+String pattern = "^T.*";
+Iterable<Document> documents = collection   	.find(regex("title", pattern))
+		                                .projection(Projections.fields( Projections.exclude("_id"),
+		                                                                Projections.include("title"),
+		                                                                Projections.include("authors"),
+		                                                                Projections.include("publishedDate")))
+		                                .sort(Sorts.descending("title"))
+		                                .limit(3);
+
+String pattern (^T.*) : expressão regex para definir todas as strings começadas por T.
+atributo find(): método de pesquisa.
+atributo regex() : usado para indicar que apenas queremos pesquisar livros cujo título é uma palavra da expressão regex.
+atributo Projections.fields() : usado para definir a lista de parâmetros que queremos guardar dos livros encontrados previamente.
+atributo Projections.exclude() : usado para excluir o parâmetros "_id" da lista de parâmetros, já que este é automaticamente adicionado.
+atributo Projections.include() : usado para adicionar um parâmetro à lista de parâmetros.
+atributo Sorts.descending() : usado para definir a ordem como decrescente de título.
+atributo limit() : usado para limitar o número de livros que queremos obter da pesquisa para 3. (Usa-se no final para serem os 3 **primeiros** livros da lista já ordenada).
+
+
+4. Listar o título, os autores e o número de páginas de todos os livros com mais de 800 páginas, por ordem crescente de número de páginas.
+Iterable<Document> documents = collection   	.find(gt("pageCount", 800))
+                                                .projection(Projections.fields( Projections.exclude("_id"),
+                                                                                Projections.include("title"),
+                                                                                Projections.include("authors"),
+                                                                                Projections.include("pageCount")))
+                                                .sort(Sorts.ascending("pageCount"));
+
+atributo find(): método de pesquisa.
+atributo gt() : usado para especificar que só queremos procurar livros cujo parâmetro "pageCount" (número de páginas) for superior a 800 (tiver 801 ou mais páginas).
+atributo Projections.fields() : usado para definir a lista de parâmetros que queremos guardar dos livros encontrados previamente.
+atributo Projections.exclude() : usado para excluir o parâmetros "_id" da lista de parâmetros, já que este é automaticamente adicionado.
+atributo Projections.include() : usado para adicionar um parâmetro à lista de parâmetros.
+atributo Sorts.ascending() : usado para definir a ordem como crescente de número de páginas.
+
+
+5. Listar o título, o status de todos os livros com status igual a MEAP.
+Iterable<Document> documents = collection	.find(eq("status", "MEAP"))
+                                                .projection(Projections.fields( Projections.exclude("_id"),
+                                                                                Projections.include("title"),
+                                                                                Projections.include("status")));
+
+atributo find(): método de pesquisa.
+atributo eq() : usado para especificar que só queremos procurar livros cujo parâmetro "status" for igual a MEAP.
+atributo Projections.fields() : usado para definir a lista de parâmetros que queremos guardar dos livros encontrados previamente.
+atributo Projections.exclude() : usado para excluir o parâmetros "_id" da lista de parâmetros, já que este é automaticamente adicionado.
+atributo Projections.include() : usado para adicionar um parâmetro à lista de parâmetros.
+
+
+6. Listar o título, os autores de todos os livros com 4 autores.
+Iterable<Document> documents = collection	.find(and(size("authors", 4), not(in("authors", ""))))
+                                                .projection(Projections.fields( Projections.exclude("_id"),
+                                                                                Projections.include("title"),
+                                                                                Projections.include("authors")));
+atributo find(): método de pesquisa.
+atributo and() : usado quando há intenção de se usar mais do que um filtro de pesquisa.
+atributo size() : usado para verificar se o livro tem uma lista de autores de tamanho igual a 4
+atributo not() : usado para negar o próximo atríbuto, no caso o in(), ficando assim com  lista complementar à que este atríbuto ficando.
+atributo in() : usado para verificar se " " (autor vazio) faz parte da lista de autores de cada livro.
+atributo Projections.fields() : usado para definir a lista de parâmetros que queremos guardar dos livros encontrados previamente.
+atributo Projections.exclude() : usado para excluir o parâmetros "_id" da lista de parâmetros, já que este é automaticamente adicionado.
+atributo Projections.include() : usado para adicionar um parâmetro à lista de parâmetros.
+
+
+
+D) Crie 6 queries expressivas do seu domínio de conhecimento utilizando o operador aggregate ($group, $project, $unwind, $match, etc).
+
+
+1. Contar o número de livros só de 'Software Engineering'.
+AggregateIterable<Document> documents = collection.aggregate(Arrays.asList(
+					match(Filters.eq("categories",Arrays.asList("Software Engineering"))),
+					group("$categories", Accumulators.sum("books", 1))));
+
+atríbuto match() : usado para restringir os documentos agregados para apenas os que respeitarem as condições.
+atributo eq() : usado para especificar que só queremos procurar livros cujo parâmetro "categories" for igual a ["Software Engineering"].
+atríbuto group() : usado para definir a maneira como vamos agrupar, agrupando os valores $categories.
+atríbuto Accumulators.sum() : usado para somar o número de livros.
+
+
+2. Contar o número de livros existentes por categoria, por ordem crescente de contagem.
+AggregateIterable<Document> documents = collection.aggregate(Arrays.asList(
+					unwind("$categories"),
+					group("$categories", Accumulators.sum("books", 1)),
+					sort(Sorts.ascending("books"))));
+
+atríbuto unwind() : usado 'desconetar' os diferentes elementos que podem pertencer ao parâmetro 'categories' de cada livro, de forma a contabiliza-los individualmente.
+atríbuto group() : usado para definir a maneira como vamos agrupar, agrupando os valores $categories.
+atríbuto Accumulators.sum() : usado para somar o número de livros.
+atributo Sorts.ascending() : usado para definir a ordem como crescente de número de livros.
+
+
+3. Contar o número de livros por status, por ordem decrescente de status.
+AggregateIterable<Document> documents = collection.aggregate(Arrays.asList(
+					group("$status", Accumulators.sum("status", 1)),
+					sort(Sorts.descending("status"))));
+
+atríbuto group() : usado para definir a maneira como vamos agrupar, agrupando os valores $status.
+atríbuto Accumulators.sum() : usado para somar o número de livros.
+atributo Sorts.ascending() : usado para definir a ordem como crescente de número de livros.
+
+Nota: Esta query é caracteristica do número de livros no dataset, já que os livros só podem ter status 'PUBLISH' ou 'MEAP'.
+
+
+4. Listar o título, categoria e o número de páginas de todos os livros que não têm 'Web Development' como um categoria e com número de páginas superior a 0 e inferior a 250, por ordem crescente de número de páginas.
+AggregateIterable<Document> documents = collection.aggregate(Arrays.asList(
+					project(Projections.fields(	Projections.excludeId(),
+									Projections.include("title"),
+									Projections.include("categories"),
+									Projections.include("pageCount"))),
+					match(Filters.and(Filters.nin("categories","Web Development"),Filters.lt("pageCount",250),Filters.gt("pageCount",0))),
+					sort(Sorts.ascending("pageCount"))));
+
+atríbuto project() : usado para projetar os parâmetros que queremos obter da agregação.
+atributo Projections.fields() : usado para definir a lista de parâmetros que queremos guardar dos livros encontrados previamente.
+atributo Projections.exclude() : usado para excluir o parâmetros "_id" da lista de parâmetros, já que este é automaticamente adicionado.
+atributo Projections.include() : usado para adicionar um parâmetro à lista de parâmetros.
+atríbuto match() : usado para restringir os documentos agregados para apenas os que respeitarem as condições.
+atributo and() : usado quando há intenção de se usar mais do que um filtro de pesquisa.
+atríbuto nin() : basicamente uma junção dos atríbutos not() e in(), devolvendo a lista dos livros que não têm 'Web Development' na sua lista de categorias.
+atributo lt() : usado para especificar que só queremos procurar livros cujo parâmetro "pageCount" (número de páginas) for inferior a 250 (tiver 249 ou menos páginas).
+atributo gt() : usado para especificar que só queremos procurar livros cujo parâmetro "pageCount" (número de páginas) for superior a 0 (tiver pelo menos 1 página).
+atributo Sorts.ascending() : usado para definir a ordem como crescente de número de páginas.
+
+
+5. Listar as 5 categorias com maior número de livros, por ordem decrescente da contagem.
+AggregateIterable<Document> documents = collection.aggregate(Arrays.asList(
+					unwind("$categories"),
+					group("$categories", Accumulators.sum("books", 1)),
+					sort(Sorts.descending("books")),
+					limit(5)));
+
+atríbuto unwind() : usado 'desconetar' os diferentes elementos que podem pertencer ao parâmetro 'categories' de cada livro, de forma a contabiliza-los individualmente.
+atríbuto group() : usado para definir a maneira como vamos agrupar, agrupando os valores $categories.
+atríbuto Accumulators.sum() : usado para somar o número de livros.
+atributo Sorts.descending() : usado para definir a ordem como decrescente de número de livros.
+atributo limit() : usado para limitar o número de livros que queremos obter da pesquisa para 5. (Usa-se no final para serem os 5 **primeiros** livros da lista já ordenada).
+
+
+6. Contar o número de livros com status 'PUBLISH' com número de páginas superior a 300 por categoria.
+AggregateIterable<Document> documents = collection.aggregate(Arrays.asList(
+					unwind("$categories"),
+					match(Filters.and(Filters.eq("status","PUBLISH"),Filters.gt("pageCount",300))),
+					group("$categories", Accumulators.sum("books", 1))));
+
+atríbuto unwind() : usado 'desconetar' os diferentes elementos que podem pertencer ao parâmetro 'categories' de cada livro, de forma a contabiliza-los individualmente.
+atríbuto match() : usado para restringir os documentos agregados para apenas os que respeitarem as condições.
+atributo and() : usado quando há intenção de se usar mais do que um filtro de pesquisa.
+atributo eq() : usado para especificar que só queremos procurar livros cujo parâmetro "status" for igual a 'PUBLISH'.
+atributo gt() : usado para especificar que só queremos procurar livros cujo parâmetro "pageCount" (número de páginas) for superior a 300 (tiver 301 ou mais páginas).
+atríbuto group() : usado para definir a maneira como vamos agrupar, agrupando os valores $categories.
+atríbuto Accumulators.sum() : usado para somar o número de livros.
+
+
+DATA IMPRIMIDA A QUANDO A EXECUÇÃO DO FICHEIRO application.java (Lab2_104142/lab2_5/lab2_5/src/main/java/com/driver/app)
+
+1. Listar o título, número de páginas, data de publicação e autores de todos os livros que contanham 'Software Engineering' nas categorias.
+
+1 -> {"title": "Specification by Example", "pageCount": 0, "publishedDate": {"$date": 1307084400000}, "authors": ["Gojko Adzic"]}
+2 -> {"title": "Mule in Action", "pageCount": 432, "publishedDate": {"$date": 1246431600000}, "authors": ["David Dossot", "John D'Emic"]}
+3 -> {"title": "Distributed Agile in Action", "pageCount": 325, "authors": ["Vikas Hazrati", "Balaji D Loganathan"]}
+4 -> {"title": "Taming Text", "pageCount": 350, "publishedDate": {"$date": 1356940800000}, "authors": ["Grant S. Ingersoll", "Thomas S. Morton", "", "Andrew L. Farris"]}
+5 -> {"title": "Agile ALM", "pageCount": 0, "publishedDate": {"$date": 1313823600000}, "authors": ["Michael Hüttermann"]}
+6 -> {"title": "R in Action", "pageCount": 375, "publishedDate": {"$date": 1313391600000}, "authors": ["Robert I. Kabacoff"]}
+7 -> {"title": "Test Driven", "pageCount": 544, "publishedDate": {"$date": 1188630000000}, "authors": ["Lasse Koskela"]}
+8 -> {"title": "Practical Software Requirements", "pageCount": 448, "publishedDate": {"$date": 904633200000}, "authors": ["Benjamin L. Kovitz"]}
+9 -> {"title": "SOA Security", "pageCount": 512, "publishedDate": {"$date": 1196496000000}, "authors": ["Ramarao Kanneganti", "Prasad A. Chodavarapu"]}
+10 -> {"title": "Doing IT Right", "pageCount": 350, "publishedDate": {"$date": 817804800000}, "authors": ["Harold Lorin"]}
+11 -> {"title": "SNA and TCP/IP Enterprise Networking", "pageCount": 540, "publishedDate": {"$date": 873097200000}, "authors": ["Daniel C. Lynch", "James P. Gray", "and Edward Rabinovitch", "editors"]}
+12 -> {"title": "The Art of Unit Testing", "pageCount": 320, "publishedDate": {"$date": 1241161200000}, "authors": ["Roy Osherove"]}
+13 -> {"title": "Machine Learning in Action", "pageCount": 0, "publishedDate": {"$date": 1333522800000}, "authors": ["Peter Harrington"]}
+14 -> {"title": "Activiti in Action", "pageCount": 0, "publishedDate": {"$date": 1342076400000}, "authors": ["Tijs Rademakers"]}
+15 -> {"title": "Becoming Agile", "pageCount": 408, "publishedDate": {"$date": 1241161200000}, "authors": ["Greg Smith", "Ahmed Sidky"]}
+16 -> {"title": "RabbitMQ in Action", "pageCount": 0, "publishedDate": {"$date": 1334905200000}, "authors": ["Alvaro Videla", "Jason J.W. Williams"]}
+
+2. Listar o título, autores e data de publicação dos 10 primeiros livros, por ordem crescente de data de publicação.
+
+1 -> {"title": "F# in Action", "authors": ["Amanda Laucher"]}
+2 -> {"title": "C# in Depth, Second Edition", "authors": ["Jon Skeet"]}
+3 -> {"title": "Using C-Kermit: Communication Software", "authors": []}
+4 -> {"title": "Groovy in Action, Second Edition", "authors": ["Dierk König", "Guillaume Laforge", "Paul King", "Cédric Champeau", "Hamlet D'Arcy", "Erik Pragt", "", "Jon Skeet"]}
+5 -> {"title": "Android in Practice", "authors": ["Matthias Kaeppler", "Michael D. Galpin", "Charlie Collins"]}
+6 -> {"title": "The Engaging Web", "authors": ["Gabe Zichermann", "Chris Cunningham"]}
+7 -> {"title": "Big Data", "authors": ["Nathan Marz", "James Warren"]}
+8 -> {"title": "Unit Testing in C++", "authors": ["Bruce Trask", "Angel Roman"]}
+9 -> {"title": "Enterprise OSGi In Action", "authors": ["Holly Cummins", "Timothy Ward"]}
+10 -> {"title": "Distributed Agile in Action", "authors": ["Vikas Hazrati", "Balaji D Loganathan"]}
+
+3. Listar o título, autores e data de publicação dos 3 primeiros livros cujo título começa por "T", por ordem decrescente de título.
+
+1 -> {"title": "Tuscany SCA in Action", "publishedDate": {"$date": 1297497600000}, "authors": ["Simon Laws", "Mark Combellack", "Raymond Feng", "Haleh Mahbod", "Simon Nash"]}
+2 -> {"title": "Titanium Alloy in Action", "authors": ["Ricardo Alcocer"]}
+3 -> {"title": "Tika in Action", "publishedDate": {"$date": 1322726400000}, "authors": ["Chris A. Mattmann", "Jukka L. Zitting"]}
+
+4. Listar o título, os autores e o número de páginas de todos os livros com mais de 800 páginas, por ordem crescente de número de páginas.
+
+1 -> {"title": "The Awesome Power of Direct3D/DirectX", "pageCount": 840, "authors": ["Peter J. Kovach"]}
+2 -> {"title": "SQL Server MVP Deep Dives", "pageCount": 848, "authors": ["Contributions from 53 SQL Server MVPs", "Edited by Paul Nielsen", "Kalen Delaney", "Greg Low", "Adam Machanic", "Paul S. Randal", "", "Kimberly L. Tripp"]}
+3 -> {"title": "SQL Server MVP Deep Dives", "pageCount": 848, "authors": ["Contributions from 53 SQL Server MVPs; Edited by Paul Nielsen", "Kalen Delaney", "Greg Low", "Adam Machanic", "Paul S. Randal", "", "Kimberly L. Tripp"]}
+4 -> {"title": "SQL Server MVP Deep Dives", "pageCount": 848, "authors": ["Paul Nielsen", "Kalen Delaney", "Greg Low", "Adam Machanic", "Paul S. Randal", "", "Kimberly L. Tripp"]}
+5 -> {"title": "Java Network Programming, Second Edition", "pageCount": 860, "authors": ["Merlin Hughes", "Michael Shoffner", "", "Derek Hamner"]}
+6 -> {"title": "Java Persistence with Hibernate", "pageCount": 880, "authors": ["Christian Bauer", "Gavin King"]}
+7 -> {"title": "Dynamic WAP Application Development", "pageCount": 888, "authors": []}
+8 -> {"title": "Swing Second Edition", "pageCount": 912, "authors": []}
+9 -> {"title": "Silverlight 5 in Action", "pageCount": 925, "authors": ["Pete Brown"]}
+10 -> {"title": "Windows Forms in Action", "pageCount": 950, "authors": []}
+11 -> {"title": "Java Foundation Classes", "pageCount": 1088, "authors": ["Stephen C. Drye", "William C. Wake"]}
+12 -> {"title": "Ten Years of UserFriendly.Org", "pageCount": 1096, "authors": ["JD \"Illiad\" Frazer"]}
+13 -> {"title": "Essential Guide to Peoplesoft Development and Customization", "pageCount": 1101, "authors": ["Tony DeLia", "Galina Landres", "Isidor Rivera", "Prakash Sankaran"]}
+
+5. Listar o título, o status de todos os livros com status igual a MEAP.
+
+1 -> {"title": "Distributed Agile in Action", "status": "MEAP"}
+2 -> {"title": "Android in Practice", "status": "MEAP"}
+3 -> {"title": "Groovy in Action, Second Edition", "status": "MEAP"}
+4 -> {"title": "F# in Action", "status": "MEAP"}
+5 -> {"title": "The Engaging Web", "status": "MEAP"}
+6 -> {"title": "Big Data", "status": "MEAP"}
+7 -> {"title": "Java Persistence with Hibernate, Second Edition", "status": "MEAP"}
+8 -> {"title": "Augmented Reality Revealed", "status": "MEAP"}
+9 -> {"title": "Building Well-Structured JavaScript Applications", "status": "MEAP"}
+10 -> {"title": "Neo4j in Action", "status": "MEAP"}
+11 -> {"title": "Functional Programming in Scala", "status": "MEAP"}
+12 -> {"title": "Node.js in Practice", "status": "MEAP"}
+13 -> {"title": "RabbitMQ in Depth", "status": "MEAP"}
+14 -> {"title": "Akka in Action", "status": "MEAP"}
+15 -> {"title": "Grails in Action, Second Edition", "status": "MEAP"}
+16 -> {"title": "Rails 4 in Action", "status": "MEAP"}
+17 -> {"title": "The Responsive Web", "status": "MEAP"}
+18 -> {"title": "Spring in Action, Fourth Edition", "status": "MEAP"}
+19 -> {"title": "SBT in Action", "status": "MEAP"}
+20 -> {"title": "Scalatra in Action", "status": "MEAP"}
+21 -> {"title": "AngularJS in Action", "status": "MEAP"}
+22 -> {"title": "Software Development Metrics", "status": "MEAP"}
+23 -> {"title": "F# Deep Dives", "status": "MEAP"}
+24 -> {"title": "PostGIS in Action, Second Edition", "status": "MEAP"}
+25 -> {"title": "R in Action, Second Edition", "status": "MEAP"}
+26 -> {"title": "Hello App Inventor!", "status": "MEAP"}
+27 -> {"title": "Netty in Action", "status": "MEAP"}
+28 -> {"title": "OCP Java SE 7 Programmer II Certification Guide", "status": "MEAP"}
+29 -> {"title": "Backbone.js in Action", "status": "MEAP"}
+30 -> {"title": "RavenDB in Action", "status": "MEAP"}
+31 -> {"title": "Titanium Alloy in Action", "status": "MEAP"}
+32 -> {"title": "Learn SCCM 2012 in a Month of Lunches", "status": "MEAP"}
+33 -> {"title": "BDD in Action", "status": "MEAP"}
+34 -> {"title": "Programming for Musicians and Digital Artists", "status": "MEAP"}
+35 -> {"title": "Giraph in Action", "status": "MEAP"}
+36 -> {"title": "Go in Action", "status": "MEAP"}
+37 -> {"title": "CORS in Action", "status": "MEAP"}
+38 -> {"title": "Real-World Machine Learning", "status": "MEAP"}
+39 -> {"title": "The Programmer's Guide to Apache Thrift ", "status": "MEAP"}
+40 -> {"title": "Grokking Functional Programming", "status": "MEAP"}
+41 -> {"title": "Reactive Design Patterns", "status": "MEAP"}
+42 -> {"title": "Web Components in Action", "status": "MEAP"}
+43 -> {"title": "jQuery UI in Action", "status": "MEAP"}
+44 -> {"title": "JavaScript Application Design", "status": "MEAP"}
+45 -> {"title": "Storm Applied", "status": "MEAP"}
+46 -> {"title": "Java 8 in Action", "status": "MEAP"}
+47 -> {"title": "Git in Practice", "status": "MEAP"}
+48 -> {"title": "Impala in Action", "status": "MEAP"}
+49 -> {"title": "Clojure in Action, Second Edition", "status": "MEAP"}
+50 -> {"title": "ArcGIS Web Development", "status": "MEAP"}
+51 -> {"title": "Getting MEAN with Mongo, Express, Angular, and Node", "status": "MEAP"}
+52 -> {"title": "Elasticsearch in Action", "status": "MEAP"}
+53 -> {"title": "MongoDB in Action, Second Edition", "status": "MEAP"}
+54 -> {"title": "D3.js in Action", "status": "MEAP"}
+55 -> {"title": "Elixir in Action", "status": "MEAP"}
+56 -> {"title": "Hadoop in Practice, Second Edition", "status": "MEAP"}
+57 -> {"title": "Barcodes with iOS", "status": "MEAP"}
+58 -> {"title": "Oculus Rift in Action", "status": "MEAP"}
+59 -> {"title": "OpenStack in Action", "status": "MEAP"}
+60 -> {"title": "Geoprocessing with Python", "status": "MEAP"}
+61 -> {"title": "Chef in Action", "status": "MEAP"}
+62 -> {"title": "Practical Probabilistic Programming", "status": "MEAP"}
+63 -> {"title": "PowerShell in Depth, Second Edition", "status": "MEAP"}
+64 -> {"title": "Learn Git in a Month of Lunches", "status": "MEAP"}
+65 -> {"title": "Unity in Action", "status": "MEAP"}
+66 -> {"title": "Express.js in Action", "status": "MEAP"}
+67 -> {"title": "Understanding SPAs", "status": "MEAP"}
+68 -> {"title": "jQuery in Action, Third Edition", "status": "MEAP"}
+
+6. Listar o título, os autores de todos os livros com 4 autores.
+
+1 -> {"title": "Flex 4 in Action", "authors": ["Tariq Ahmed", "Dan Orlando", "John C. Bland II", "Joel Hooks"]}
+2 -> {"title": "Essential Guide to Peoplesoft Development and Customization", "authors": ["Tony DeLia", "Galina Landres", "Isidor Rivera", "Prakash Sankaran"]}
+3 -> {"title": "Struts in Action", "authors": ["Ted N. Husted", "Cedric Dumoulin", "George Franciscus", "David Winterfeldt"]}
+4 -> {"title": "Groovy in Action", "authors": ["Dierk Koenig with Andrew Glover", "Paul King", "Guillaume Laforge", "Jon Skeet"]}
+5 -> {"title": "Adobe AIR in Action", "authors": ["Joey Lott", "Kathryn Rotondo", "Sam Ahn", "Ashley Atkins"]}
+6 -> {"title": "SNA and TCP/IP Enterprise Networking", "authors": ["Daniel C. Lynch", "James P. Gray", "and Edward Rabinovitch", "editors"]}
+7 -> {"title": "Spring Batch in Action", "authors": ["Arnaud Cogoluegnes", "Thierry Templier", "Gary Gregory", "Olivier Bazoud"]}
+8 -> {"title": "Bitter EJB", "authors": ["Bruce Tate", "Mike Clark", "Bob Lee", "Patrick Linskey"]}
+9 -> {"title": "Android in Action, Third Edition", "authors": ["W. Frank Ableson", "Robi Sen", "Chris King", "C. Enrique Ortiz"]}
+10 -> {"title": "Linked Data", "authors": ["David Wood", "Marsha Zaidman", "Luke Ruth", "with Michael Hausenblas"]}
+11 -> {"title": "Akka in Action", "authors": ["Raymond Roestenburg", "Rob Bakker", "Rob Williams", "Steven Haines"]}
+12 -> {"title": "Windows Phone 8 in Action", "authors": ["Timothy Binkley-Jones", "Massimo Perga", "Michael Sync", "Adam Benoit"]}
+
+1. Contar o número de livros só de 'Software Engineering'.
+
+1 -> {"_id": ["Software Engineering"], "books": 12}
+
+2. Contar o número de livros existentes por categoria, por ordem crescente de contagem.
+
+1 -> {"_id": "PHP", "books": 1}
+2 -> {"_id": "java", "books": 1}
+3 -> {"_id": "S", "books": 1}
+4 -> {"_id": "Miscella", "books": 1}
+5 -> {"_id": "internet", "books": 1}
+6 -> {"_id": "Computer Graph", "books": 1}
+7 -> {"_id": "Client Server", "books": 1}
+8 -> {"_id": "Object-Technology Programming", "books": 1}
+9 -> {"_id": "Mobile", "books": 1}
+10 -> {"_id": ".NET", "books": 1}
+11 -> {"_id": "Next Generation Databases", "books": 1}
+12 -> {"_id": "SOA", "books": 1}
+13 -> {"_id": "P", "books": 1}
+14 -> {"_id": "Software Development", "books": 1}
+15 -> {"_id": "Microsoft/.NET", "books": 1}
+16 -> {"_id": "Algorithmic Art", "books": 1}
+17 -> {"_id": "In Action", "books": 1}
+18 -> {"_id": "Miscellaneous", "books": 2}
+19 -> {"_id": "Open Source", "books": 2}
+20 -> {"_id": "", "books": 2}
+21 -> {"_id": "Object-Oriented Programming", "books": 4}
+22 -> {"_id": "XML", "books": 4}
+23 -> {"_id": "Computer Graphics", "books": 6}
+24 -> {"_id": "Perl", "books": 6}
+25 -> {"_id": "Mobile Technology", "books": 6}
+26 -> {"_id": "Python", "books": 6}
+27 -> {"_id": "PowerBuilder", "books": 7}
+28 -> {"_id": "Theory", "books": 7}
+29 -> {"_id": "Networking", "books": 7}
+30 -> {"_id": "Microsoft", "books": 8}
+31 -> {"_id": "Client-Server", "books": 11}
+32 -> {"_id": "Business", "books": 12}
+33 -> {"_id": "Programming", "books": 12}
+34 -> {"_id": "Software Engineering", "books": 16}
+35 -> {"_id": "Web Development", "books": 17}
+36 -> {"_id": "Microsoft .NET", "books": 34}
+37 -> {"_id": "Internet", "books": 41}
+38 -> {"_id": "Java", "books": 96}
+
+3. Contar o número de livros por status, por ordem decrescente de status.
+
+1 -> {"_id": "PUBLISH", "status": 363}
+2 -> {"_id": "MEAP", "status": 68}
+
+4. Listar o título, categoria e o número de páginas de todos os livros que não têm 'Web Development' como um categoria e com número de páginas superior a 0 e inferior a 250, por ordem crescente de número de páginas.
+
+1 -> {"title": "Making Sense of Java", "pageCount": 180, "categories": ["Java", "Business"]}
+2 -> {"title": "Object Technology Centers of Excellence", "pageCount": 200, "categories": ["Object-Technology Programming", ""]}
+3 -> {"title": "The Cloud at Your Service", "pageCount": 200, "categories": ["Internet"]}
+4 -> {"title": "Comprehensive Networking Glossary and Acronym Guide", "pageCount": 208, "categories": ["Internet"]}
+5 -> {"title": "Implementing PeopleSoft Financials", "pageCount": 220, "categories": ["Business", "Client-Server"]}
+6 -> {"title": "Practical Methods for Your Year 2000 Problem", "pageCount": 236, "categories": ["Business"]}
+
+5. Listar as 5 categorias com maior número de livros, por ordem decrescente da contagem.
+
+1 -> {"_id": "Java", "books": 96}
+2 -> {"_id": "Internet", "books": 41}
+3 -> {"_id": "Microsoft .NET", "books": 34}
+4 -> {"_id": "Web Development", "books": 17}
+5 -> {"_id": "Software Engineering", "books": 16}
+
+6. Contar o número de livros com status 'PUBLISH' com número de páginas superior a 300 por categoria.
+
+1 -> {"_id": "Client-Server", "books": 9}
+2 -> {"_id": "Business", "books": 8}
+3 -> {"_id": "PHP", "books": 1}
+4 -> {"_id": "Computer Graphics", "books": 6}
+5 -> {"_id": "Miscellaneous", "books": 2}
+6 -> {"_id": "Software Engineering", "books": 10}
+7 -> {"_id": "Perl", "books": 6}
+8 -> {"_id": "PowerBuilder", "books": 7}
+9 -> {"_id": "Internet", "books": 35}
+10 -> {"_id": "S", "books": 1}
+11 -> {"_id": "Web Development", "books": 14}
+12 -> {"_id": "Object-Oriented Programming", "books": 4}
+13 -> {"_id": "Mobile Technology", "books": 4}
+14 -> {"_id": "XML", "books": 4}
+15 -> {"_id": "internet", "books": 1}
+16 -> {"_id": "Java", "books": 74}
+17 -> {"_id": "Computer Graph", "books": 1}
+18 -> {"_id": "Microsoft .NET", "books": 30}
+19 -> {"_id": "Client Server", "books": 1}
+20 -> {"_id": "Theory", "books": 6}
+21 -> {"_id": "Mobile", "books": 1}
+22 -> {"_id": "Networking", "books": 6}
+23 -> {"_id": ".NET", "books": 1}
+24 -> {"_id": "Open Source", "books": 2}
+25 -> {"_id": "Programming", "books": 9}
+26 -> {"_id": "P", "books": 1}
+27 -> {"_id": "Software Development", "books": 1}
+28 -> {"_id": "", "books": 1}
+29 -> {"_id": "Microsoft", "books": 8}
+30 -> {"_id": "Python", "books": 6}
+
